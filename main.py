@@ -88,13 +88,13 @@ class Hexagon(dict):
         placements = []
         for (key, value) in self.items():
             if len(value) == 2:
-                t = {v for v in value} | {key}
+                t = tuple(sorted(list({v for v in value} | {key})))
                 placements.append(t)
             if len(value) == 3:
                 for neighbor in value:
-                    t = {v for v in value if v is not neighbor} | {key}
+                    t = tuple(sorted(list({v for v in value if v is not neighbor} | {key})))
                     placements.append(t)
-        return placements
+        return sorted(placements)
 
     def place(self, placement):
         """Remove all nodes of a given placement."""
@@ -170,7 +170,13 @@ class Hexagon(dict):
 
         return self
 
-    def count_valid_tilings(self):
+    # since there is no most-recent tile placement, provide a dummy value known to be smaller
+    # than all actual tile placements
+    def count_valid_tilings(self, initial=(0, 0, 0)):
+        """Count valid ordered tilings."""
+        """`initial` is the most-recently-placed tile. If in any tile placement is less than the
+        initial tile, the tiling is non-ordered and thus would be a duplicate of the properly
+        ordered version, so it is not considered."""
         candidate_placements = self.enumerate_possible_tile_placements()
         if len(candidate_placements) == 0:
             # if no nodes remain, we have a valid tiling, otherwise, invalid
@@ -178,8 +184,10 @@ class Hexagon(dict):
         placements = self.enumerate_possible_tile_placements()
         ct = 0
         for p in placements:
+            if p < initial:
+                return 0
             t = self.placed(p)
-            ct += t.count_valid_tilings()
+            ct += t.count_valid_tilings(initial=p)
         return ct
 
 h = Hexagon().trim_to_radius_1()
