@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+import copy
+
 class Hexagon(dict):
     """
     Represents a Hexagon-shaped triangularly-tiled region of sidelength 3 as a graph in which each
@@ -8,7 +10,9 @@ class Hexagon(dict):
     indices--the "neighborhood" for the triangle of the given index.
 
     """
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
+        if args or kwargs:
+            super().__init__(*args, **kwargs)
         super().__init__({
             0: {1, 3},
             1: {0, 4},
@@ -96,6 +100,19 @@ class Hexagon(dict):
         """Remove all nodes of a given placement."""
         for node in placement:
             self.remove_node(node)
+
+    def placed(self, placement):
+        """Returns a new graph which is equivalent to self less the given placement."""
+        t = self.deepcopy()
+        t.place(placement)
+        return t
+
+    def deepcopy(self):
+        """Creates a deepcopy of `self`."""
+        t = self.__class__()
+        t.clear()
+        t.update(copy.deepcopy(self))
+        return t
 
     def __repr__(self):
         return '\n'.join([f"{k} -> {v}" for k, v in self.items()])
