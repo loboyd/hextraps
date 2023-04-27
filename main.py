@@ -10,7 +10,7 @@ class Hexagon(dict):
     """
     def __init__(self):
         super().__init__({
-            0: {0, 3},
+            0: {1, 3},
             1: {0, 4},
             2: {3, 7},
             3: {0, 2, 8},
