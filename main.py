@@ -170,6 +170,18 @@ class Hexagon(dict):
 
         return self
 
+    def count_valid_tilings(self):
+        candidate_placements = self.enumerate_possible_tile_placements()
+        if len(candidate_placements) == 0:
+            # if no nodes remain, we have a valid tiling, otherwise, invalid
+            return int(len(self) == 0)
+        placements = self.enumerate_possible_tile_placements()
+        ct = 0
+        for p in placements:
+            t = self.placed(p)
+            ct += t.count_valid_tilings()
+        return ct
+
 h = Hexagon().trim_to_radius_1()
 
 print(h.enumerate_possible_tile_placements())
