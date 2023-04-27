@@ -77,6 +77,20 @@ class Hexagon(dict):
             self[neighbor_index].remove(index) # remove self from neighbor's neighborhood
         self.pop(index) # remove self from graph
 
+    def enumerate_possible_tile_placements(self):
+        """Find all valid tile placements. Represented by a list of index triples. To "place" a
+            tile, one must call `self.remove_node(<index>) for each index in the triple."""
+        placements = []
+        for (key, value) in self.items():
+            if len(value) == 2:
+                t = {v for v in value} | {key}
+                placements.append(t)
+            if len(value) == 3:
+                for neighbor in value:
+                    t = {v for v in value if v is not neighbor} | {key}
+                    placements.append(t)
+        return placements
+
     def __repr__(self):
         return '\n'.join([f"{k} -> {v}" for k, v in self.items()])
             
