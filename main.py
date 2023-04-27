@@ -73,7 +73,7 @@ class Hexagon(dict):
 
     def remove_node(self, index):
         """Remove node corresponding to given index and all connection to and from it."""
-        while any(self[index]):
+        while 0 < len(self[index]):
             neighbor_index = self[index].pop() # remove neighbor from own neighborhood
             self[neighbor_index].remove(index) # remove self from neighbor's neighborhood
         self.pop(index) # remove self from graph
