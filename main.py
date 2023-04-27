@@ -92,6 +92,11 @@ class Hexagon(dict):
                     placements.append(t)
         return placements
 
+    def place(self, placement):
+        """Remove all nodes of a given placement."""
+        for node in placement:
+            self.remove_node(node)
+
     def __repr__(self):
         return '\n'.join([f"{k} -> {v}" for k, v in self.items()])
             
