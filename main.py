@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
 class Hexagon(dict):
+    """
+    Represents a Hexagon-shaped triangularly-tiled region of sidelength 3 as a graph in which each
+    node is a triangle and each connection indicates adjacency. In particular, this is implemented
+    as a dictionary where the keys are simple integer-valued indices and the the values are sets of
+    indices--the "neighborhood" for the triangle of the given index.
+
+    """
     def __init__(self):
         super().__init__({
             0: (0, 3),
