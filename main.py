@@ -71,10 +71,17 @@ class Hexagon(dict):
             53: {50, 52}
         })
 
+    def remove_node(self, index):
+        while any(self[index]):
+            neighbor_index = self[index].pop() # remove neighbor from own neighborhood
+            self[neighbor_index].remove(index) # remove self from neighbor's neighborhood
+        self.pop(index) # remove self from graph
+
     def __repr__(self):
         return '\n'.join([f"{k} -> {v}" for k, v in self.items()])
             
 
 h = Hexagon()
+h.remove_node(53)
 print(h)
 
