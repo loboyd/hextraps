@@ -131,13 +131,6 @@ class Hexagon(dict):
                 f()
         return undo
 
-    def deepcopy(self):
-        """Creates a deepcopy of `self`."""
-        t = self.__class__()
-        t.clear()
-        t.update(copy.deepcopy(self))
-        return t
-
     def __repr__(self):
         return '\n'.join([f"{k} -> {v}" for k, v in self.items()])
             
