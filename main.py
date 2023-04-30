@@ -87,14 +87,7 @@ class Hexagon(dict):
             self.update({index: neighborhood})
 
         restoration_actions = [] # list of lambda to restore the node being removed
-        while 0 < len(self[index]):
-
-            # remove neighbor from own neighborhood
-            neighbor_index = self[index].pop()
-
-            # add neighbor back to own neighborhood
-            restoration_actions.append(lambda i=index, n=neighbor_index: add(i, n))
-
+        for neighbor_index in self[index]:
             # remove self from neighbor's neighborhood
             self[neighbor_index].remove(index)
 
