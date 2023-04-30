@@ -201,18 +201,19 @@ class Hexagon(dict):
         for initial_placement in valid_initial_placements[:1]:
             print(f'initial_placement: {initial_placement}')
             unplace = self.place(initial_placement)
-            ct += self._count_valid_tilings((0, 0, 0))
+            ct += self._count_valid_tilings(tiling=[initial_placement])
             unplace()
 
         return ct
 
     # since there is no most-recent tile placement, provide a dummy value known to be smaller
     # than all actual tile placements
-    def _count_valid_tilings(self, initial, depth=1):
+    def _count_valid_tilings(self, tiling, depth=1):
         """Count valid ordered tilings. `initial` is the most-recently-placed tile. If in any tile
         placement is less than the initial tile, the tiling is non-ordered and thus would be a
         duplicate of the properly ordered version, so it is not considered."""
-        if 6 < depth:
+        if 1 < depth:
+            print(tiling)
             return 1
         candidate_placements = self.enumerate_possible_tile_placements()
         if len(candidate_placements) == 0:
@@ -221,11 +222,11 @@ class Hexagon(dict):
         placements = self.enumerate_possible_tile_placements()
         ct = 0
         for p in placements:
-            if p < initial:
+            if p < tiling[-1] and len(tiling) > 1:
                 return 0
 
             unplace = self.place(p)
-            ct += self._count_valid_tilings(initial=p, depth=depth+1)
+            ct += self._count_valid_tilings(tiling=tiling+[p], depth=depth+1)
             unplace()
 
         return ct
