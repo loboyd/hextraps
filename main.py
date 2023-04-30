@@ -76,11 +76,41 @@ class Hexagon(dict):
         })
 
     def remove_node(self, index):
-        """Remove node corresponding to given index and all connection to and from it."""
+        """Remove node corresponding to given index and all connection to and from it. Returns
+           a lambda function which when called will restore the state of the graph as this method is
+           called on it"""
+
+        def add(index, neighbor_index):
+            self[index].add(neighbor_index)
+
+        def update(index, neighborhood):
+            self.update({index: neighborhood})
+
+        restoration_actions = [] # list of lambda to restore the node being removed
         while 0 < len(self[index]):
-            neighbor_index = self[index].pop() # remove neighbor from own neighborhood
-            self[neighbor_index].remove(index) # remove self from neighbor's neighborhood
-        self.pop(index) # remove self from graph
+
+            # remove neighbor from own neighborhood
+            neighbor_index = self[index].pop()
+
+            # add neighbor back to own neighborhood
+            restoration_actions.append(lambda i=index, n=neighbor_index: add(i, n))
+
+            # remove self from neighbor's neighborhood
+            self[neighbor_index].remove(index)
+
+            # add self back to neighbor's neighborhood
+            restoration_actions.append(lambda n=neighbor_index, i=index: add(n, i))
+
+        # remove self from graph, capture neighborhood value for restoration
+        neighborhood = self.pop(index)
+
+        # add index -> neighborhood back to self
+        restoration_actions.append(lambda i=index, h=neighborhood: update(i, h))
+
+        def undo():
+            for f in reversed(restoration_actions):
+                f()
+        return undo
 
     def enumerate_possible_tile_placements(self):
         """Find all valid tile placements. Represented by a list of index triples. To "place" a
@@ -98,8 +128,15 @@ class Hexagon(dict):
 
     def place(self, placement):
         """Remove all nodes of a given placement."""
+        restoration_actions = []
         for node in placement:
-            self.remove_node(node)
+            restoration = self.remove_node(node)
+            restoration_actions.append(restoration)
+        #return lambda: [f() for f in reversed(restoration_actions)]
+        def undo():
+            for f in reversed(restoration_actions):
+                f()
+        return undo
 
     def placed(self, placement):
         """Returns a new graph which is equivalent to self less the given placement."""
@@ -186,8 +223,16 @@ class Hexagon(dict):
         for p in placements:
             if p < initial:
                 return 0
-            t = self.placed(p)
-            ct += t.count_valid_tilings(initial=p)
+
+            # old way
+            #t = self.placed(p)
+            #ct += t.count_valid_tilings(initial=p)
+
+            # new way
+            unplace = self.place(p)
+            ct += h.count_valid_tilings(initial=p)
+            unplace()
+
         return ct
 
 h = Hexagon().trim_to_radius_1()
