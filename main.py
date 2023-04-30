@@ -203,10 +203,9 @@ class Hexagon(dict):
     # since there is no most-recent tile placement, provide a dummy value known to be smaller
     # than all actual tile placements
     def count_valid_tilings(self, initial=(0, 0, 0)):
-        """Count valid ordered tilings."""
-        """`initial` is the most-recently-placed tile. If in any tile placement is less than the
-        initial tile, the tiling is non-ordered and thus would be a duplicate of the properly
-        ordered version, so it is not considered."""
+        """Count valid ordered tilings. `initial` is the most-recently-placed tile. If in any tile
+        placement is less than the initial tile, the tiling is non-ordered and thus would be a
+        duplicate of the properly ordered version, so it is not considered."""
         candidate_placements = self.enumerate_possible_tile_placements()
         if len(candidate_placements) == 0:
             # if no nodes remain, we have a valid tiling, otherwise, invalid
