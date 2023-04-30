@@ -76,8 +76,8 @@ class Hexagon(dict):
         })
 
     def remove_node(self, index):
-        """Remove node corresponding to given index and all connection to and from it. Returns
-           a lambda function which when called will restore the state of the graph as this method is
+        """Remove node corresponding to given index and all connection to and from it. Returns a
+           lambda function which when called will restore the state of the graph as this method is
            called on it"""
 
         def add(index, neighbor_index):
