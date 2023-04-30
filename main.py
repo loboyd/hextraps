@@ -187,12 +187,33 @@ class Hexagon(dict):
 
         return self
 
+    def count_valid_tilings(self):
+        valid_initial_placements = [
+            (2, 3, 7),
+            (2, 6, 7), (2, 7, 13), (6, 7, 13),
+            (6, 7, 12),
+            (7, 13, 14), (7, 13, 19), (13, 14, 19),
+            (8, 13, 14), (13, 14, 20),
+            (14, 20, 26), (20, 21, 26),
+        ]
+
+        ct = 0
+        for initial_placement in valid_initial_placements[:1]:
+            print(f'initial_placement: {initial_placement}')
+            unplace = self.place(initial_placement)
+            ct += self._count_valid_tilings((0, 0, 0))
+            unplace()
+
+        return ct
+
     # since there is no most-recent tile placement, provide a dummy value known to be smaller
     # than all actual tile placements
-    def count_valid_tilings(self, initial=(0, 0, 0)):
+    def _count_valid_tilings(self, initial, depth=1):
         """Count valid ordered tilings. `initial` is the most-recently-placed tile. If in any tile
         placement is less than the initial tile, the tiling is non-ordered and thus would be a
         duplicate of the properly ordered version, so it is not considered."""
+        if 6 < depth:
+            return 1
         candidate_placements = self.enumerate_possible_tile_placements()
         if len(candidate_placements) == 0:
             # if no nodes remain, we have a valid tiling, otherwise, invalid
@@ -204,72 +225,72 @@ class Hexagon(dict):
                 return 0
 
             unplace = self.place(p)
-            ct += h.count_valid_tilings(initial=p)
+            ct += self._count_valid_tilings(initial=p, depth=depth+1)
             unplace()
 
         return ct
 
-h = Hexagon().trim_to_radius_1()
+h = Hexagon()#.trim_to_radius_1()
 
 #h.remove_node(0)
-#h.remove_node(1)
+##h.remove_node(1)
 #h.remove_node(2)
 #h.remove_node(3)
-#h.remove_node(4)
-#h.remove_node(5)
+##h.remove_node(4)
+##h.remove_node(5)
 #h.remove_node(6)
 #h.remove_node(7)
 #h.remove_node(8)
-#h.remove_node(9)
-
-#h.remove_node(10)
-#h.remove_node(11)
+##h.remove_node(9)
+#
+##h.remove_node(10)
+##h.remove_node(11)
 #h.remove_node(12)
 #h.remove_node(13)
 #h.remove_node(14)
-#h.remove_node(15)
-#h.remove_node(16)
-#h.remove_node(17)
+##h.remove_node(15)
+##h.remove_node(16)
+##h.remove_node(17)
 #h.remove_node(18)
 #h.remove_node(19)
-
+#
 #h.remove_node(20)
-#h.remove_node(21)
-#h.remove_node(22)
-#h.remove_node(23)
+##h.remove_node(21)
+##h.remove_node(22)
+##h.remove_node(23)
 #h.remove_node(24)
 #h.remove_node(25)
 #h.remove_node(26)
-#h.remove_node(27)
-#h.remove_node(28)
-#h.remove_node(29)
-
+##h.remove_node(27)
+##h.remove_node(28)
+##h.remove_node(29)
+#
 #h.remove_node(30)
 #h.remove_node(31)
-#h.remove_node(32)
-#h.remove_node(33)
-#h.remove_node(34)
-#h.remove_node(35)
+##h.remove_node(32)
+##h.remove_node(33)
+##h.remove_node(34)
+##h.remove_node(35)
 #h.remove_node(36)
-#h.remove_node(37)
-#h.remove_node(38)
-#h.remove_node(39)
-
-#h.remove_node(40)
-#h.remove_node(41)
-#h.remove_node(42)
-#h.remove_node(43)
-#h.remove_node(44)
-#h.remove_node(45)
-#h.remove_node(46)
-#h.remove_node(47)
-#h.remove_node(48)
-#h.remove_node(49)
-
-#h.remove_node(50)
-#h.remove_node(51)
-#h.remove_node(52)
-#h.remove_node(53)
+##h.remove_node(37)
+##h.remove_node(38)
+##h.remove_node(39)
+#
+##h.remove_node(40)
+##h.remove_node(41)
+##h.remove_node(42)
+##h.remove_node(43)
+##h.remove_node(44)
+##h.remove_node(45)
+##h.remove_node(46)
+##h.remove_node(47)
+##h.remove_node(48)
+##h.remove_node(49)
+#
+##h.remove_node(50)
+##h.remove_node(51)
+##h.remove_node(52)
+##h.remove_node(53)
 
 print(h.count_valid_tilings())
 
