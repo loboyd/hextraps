@@ -131,12 +131,6 @@ class Hexagon(dict):
                 f()
         return undo
 
-    def placed(self, placement):
-        """Returns a new graph which is equivalent to self less the given placement."""
-        t = self.deepcopy()
-        t.place(placement)
-        return t
-
     def deepcopy(self):
         """Creates a deepcopy of `self`."""
         t = self.__class__()
@@ -216,11 +210,6 @@ class Hexagon(dict):
             if p < initial:
                 return 0
 
-            # old way
-            #t = self.placed(p)
-            #ct += t.count_valid_tilings(initial=p)
-
-            # new way
             unplace = self.place(p)
             ct += h.count_valid_tilings(initial=p)
             unplace()
