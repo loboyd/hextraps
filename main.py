@@ -195,28 +195,6 @@ class Hexagon(dict):
 
         return self
 
-    # since there is no most-recent tile placement, provide a dummy value known to be smaller
-    # than all actual tile placements
-    def count_valid_tilings(self, initial=(0, 0, 0)):
-        """Count valid ordered tilings. `initial` is the most-recently-placed tile. If in any tile
-        placement is less than the initial tile, the tiling is non-ordered and thus would be a
-        duplicate of the properly ordered version, so it is not considered."""
-        candidate_placements = self.enumerate_possible_tile_placements()
-        if len(candidate_placements) == 0:
-            # if no nodes remain, we have a valid tiling, otherwise, invalid
-            return int(len(self) == 0)
-        placements = self.enumerate_possible_tile_placements()
-        ct = 0
-        for p in placements:
-            if p < initial:
-                return 0
-
-            unplace = self.place(p)
-            ct += h.count_valid_tilings(initial=p)
-            unplace()
-
-        return ct
-
     def find_inclusion_forcing_tiles(self, pick):
         """Return all tile placements which force `pick` to be included in the tiling"""
         neighborhood = self[pick]
