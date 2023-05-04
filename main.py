@@ -120,6 +120,13 @@ class Hexagon(dict):
                     placements.append(t)
         return sorted(placements)
 
+    def placement_possible(self):
+        """Determine whether there is any valid placement."""
+        for key, value in self.items():
+            if 2 <= len(value):
+                return True
+        return False
+
     def place(self, placement):
         """Remove all nodes of a given placement."""
         restoration_actions = []
@@ -228,8 +235,7 @@ class Hexagon(dict):
 
     def count_better(self):
         """Count valid tilings, but with cleverer recursion than `self.count_valid_tilings()`"""
-        # TODO: maybe find a better base case than this
-        if len(self.enumerate_possible_tile_placements()) == 0:
+        if not self.placement_possible():
             return len(self) == 0
 
         pick, neighborhood = next(iter(self.items()))
