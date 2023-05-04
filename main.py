@@ -8,7 +8,6 @@ class Hexagon(dict):
     node is a triangle and each connection indicates adjacency. In particular, this is implemented
     as a dictionary where the keys are simple integer-valued indices and the the values are sets of
     indices--the "neighborhood" for the triangle of the given index.
-
     """
     def __init__(self, *args, **kwargs):
         if args or kwargs:
