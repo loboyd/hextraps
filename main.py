@@ -197,8 +197,8 @@ class Hexagon(dict):
                     placements.append((neighbor, second_order_neighbor, pick))
         return placements
 
-    def count_better(self):
-        """Count valid tilings, but with cleverer recursion than `self.count_valid_tilings()`"""
+    def count_tilings(self):
+        """Count valid tilings (not accounting for symmetric tilings)"""
         if not self.placement_possible():
             return len(self) == 0
 
@@ -206,7 +206,7 @@ class Hexagon(dict):
         ct = 0
         for p in self.find_inclusion_forcing_tiles(pick) + self.find_exclusion_forcing_tiles(pick):
             unplace = self.place(p)
-            ct += self.count_better()
+            ct += self.count_tilings()
             unplace()
 
         return ct
@@ -274,6 +274,5 @@ h = Hexagon()#.trim_to_radius_1()
 #h.remove_node(52)
 #h.remove_node(53)
 
-#print(h.count_valid_tilings())
-print(h.count_better())
+print(h.count_tilings())
 
