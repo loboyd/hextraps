@@ -2,6 +2,8 @@
 
 import copy
 
+from itertools import combinations
+
 class Hexagon(dict):
     """
     Represents a Hexagon-shaped triangularly-tiled region of sidelength 3 as a graph in which each
@@ -208,7 +210,44 @@ class Hexagon(dict):
 
         return ct
 
-h = Hexagon().trim_to_radius_1()
+    def find_inclusion_forcing_tiles(self, pick):
+        """Return all tile placements which force `pick` to be included in the tiling"""
+        neighborhood = self[pick]
+        pairs_of_neighbors = combinations(neighborhood, 2)
+        return [(u, v, pick) for u, v in pairs_of_neighbors]
+
+    def find_exclusion_forcing_tiles(self, pick):
+        """Return all tile placements which force `pick` to be excluded from the tiling"""
+        neighborhood = self[pick]
+        placements = []
+        for neighbor in neighborhood: # neighbor will be the center of a placement
+            for second_order_neighbor in self[neighbor]:
+                if second_order_neighbor != pick:
+                    placements.append((neighbor, second_order_neighbor, pick))
+        return placements
+
+    def count_better(self):
+        """Count valid tilings, but with cleverer recursion than `self.count_valid_tilings()`"""
+        # TODO: maybe find a better base case than this
+        if len(self.enumerate_possible_tile_placements()) == 0:
+            return len(self) == 0
+
+        pick, neighborhood = next(iter(self.items()))
+        ct = 0
+        for placement in self.find_inclusion_forcing_tiles(pick):
+            unplace = self.place(placement)
+            ct += self.count_better()
+            unplace()
+
+        for placement in self.find_exclusion_forcing_tiles(pick):
+            unplace = self.place(placement)
+            ct += self.count_better()
+            unplace()
+
+        return ct
+
+
+h = Hexagon()#.trim_to_radius_1()
 
 #h.remove_node(0)
 #h.remove_node(1)
@@ -264,11 +303,12 @@ h = Hexagon().trim_to_radius_1()
 #h.remove_node(47)
 #h.remove_node(48)
 #h.remove_node(49)
-
+#
 #h.remove_node(50)
 #h.remove_node(51)
 #h.remove_node(52)
 #h.remove_node(53)
 
-print(h.count_valid_tilings())
+#print(h.count_valid_tilings())
+print(h.count_better())
 
