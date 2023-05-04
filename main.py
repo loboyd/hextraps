@@ -204,13 +204,8 @@ class Hexagon(dict):
 
         pick, neighborhood = next(iter(self.items()))
         ct = 0
-        for placement in self.find_inclusion_forcing_tiles(pick):
-            unplace = self.place(placement)
-            ct += self.count_better()
-            unplace()
-
-        for placement in self.find_exclusion_forcing_tiles(pick):
-            unplace = self.place(placement)
+        for p in self.find_inclusion_forcing_tiles(pick) + self.find_exclusion_forcing_tiles(pick):
+            unplace = self.place(p)
             ct += self.count_better()
             unplace()
 
