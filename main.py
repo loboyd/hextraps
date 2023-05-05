@@ -75,6 +75,39 @@ class Hexagon(dict):
             52: {49, 53},
             53: {50, 52}
         })
+        self.deleted = set()
+
+    def __getitem__(self, key):
+        if key in self.deleted:
+            raise KeyError(key)
+        return {neighbor for neighbor in super().__getitem__(key) if neighbor not in self.deleted}
+
+    def keys(self):
+        return [key for key in super().keys() if key not in self.deleted]
+
+    def items(self):
+        return [(key, self[key]) for key in self.keys()]
+
+    def __contains__(self, key):
+        return key not in self.deleted and super().__contains__(key)
+
+    def __len__(self):
+        return len(self.keys())
+
+    def hide(self, index):
+        """"Hide" a node in the graph. This makes the node and all "references" to it appear to not
+            be in the graph despite still existing in it's underlying data structure."""
+        self.deleted.add(index)
+
+        def reveal(index):
+            self.deleted.remove(index)
+
+        action = lambda i=index: reveal(i)
+
+        def undo():
+            action()
+
+        return undo
 
     def remove_node(self, index):
         """Remove node corresponding to given index and all connection to and from it. Returns a
@@ -117,7 +150,7 @@ class Hexagon(dict):
         """Remove all nodes of a given placement."""
         restoration_actions = []
         for node in placement:
-            restoration = self.remove_node(node)
+            restoration = self.hide(node)
             restoration_actions.append(restoration)
         def undo():
             for f in reversed(restoration_actions):
@@ -129,54 +162,54 @@ class Hexagon(dict):
             
     def trim_to_radius_1(self):
         """Remove all nodes that aren't in the radius-1 Hexagon."""
-        self.remove_node(2)
-        self.remove_node(5)
-        self.remove_node(6)
-        self.remove_node(7)
-        self.remove_node(10)
-        self.remove_node(11)
-        self.remove_node(12)
-        self.remove_node(13)
-        self.remove_node(14)
-        self.remove_node(15)
-        self.remove_node(16)
-        self.remove_node(17)
-        self.remove_node(18)
-        self.remove_node(19)
-        self.remove_node(20)
-        self.remove_node(21)
-        self.remove_node(22)
-        self.remove_node(23)
-        self.remove_node(24)
-        self.remove_node(25)
-        self.remove_node(26)
-        self.remove_node(27)
-        self.remove_node(28)
-        self.remove_node(29)
-        self.remove_node(30)
-        self.remove_node(31)
-        self.remove_node(32)
-        self.remove_node(33)
-        self.remove_node(34)
-        self.remove_node(35)
-        self.remove_node(36)
-        self.remove_node(37)
-        self.remove_node(38)
-        self.remove_node(39)
-        self.remove_node(40)
-        self.remove_node(41)
-        self.remove_node(42)
-        self.remove_node(43)
-        self.remove_node(44)
-        self.remove_node(45)
-        self.remove_node(46)
-        self.remove_node(47)
-        self.remove_node(48)
-        self.remove_node(49)
-        self.remove_node(50)
-        self.remove_node(51)
-        self.remove_node(52)
-        self.remove_node(53)
+        self.hide(2)
+        self.hide(5)
+        self.hide(6)
+        self.hide(7)
+        self.hide(10)
+        self.hide(11)
+        self.hide(12)
+        self.hide(13)
+        self.hide(14)
+        self.hide(15)
+        self.hide(16)
+        self.hide(17)
+        self.hide(18)
+        self.hide(19)
+        self.hide(20)
+        self.hide(21)
+        self.hide(22)
+        self.hide(23)
+        self.hide(24)
+        self.hide(25)
+        self.hide(26)
+        self.hide(27)
+        self.hide(28)
+        self.hide(29)
+        self.hide(30)
+        self.hide(31)
+        self.hide(32)
+        self.hide(33)
+        self.hide(34)
+        self.hide(35)
+        self.hide(36)
+        self.hide(37)
+        self.hide(38)
+        self.hide(39)
+        self.hide(40)
+        self.hide(41)
+        self.hide(42)
+        self.hide(43)
+        self.hide(44)
+        self.hide(45)
+        self.hide(46)
+        self.hide(47)
+        self.hide(48)
+        self.hide(49)
+        self.hide(50)
+        self.hide(51)
+        self.hide(52)
+        self.hide(53)
 
         return self
 
