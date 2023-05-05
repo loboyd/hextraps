@@ -101,15 +101,7 @@ class Hexagon(dict):
             called on it"""
         self.deleted.add(index)
 
-        def reveal(index):
-            self.deleted.remove(index)
-
-        action = lambda i=index: reveal(i)
-
-        def undo():
-            action()
-
-        return undo
+        return lambda i=index: self.deleted.remove(i)
 
     def placement_possible(self):
         """Determine whether there is any valid placement."""
