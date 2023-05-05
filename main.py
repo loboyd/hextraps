@@ -109,10 +109,7 @@ class Hexagon(dict):
 
     def placement_possible(self):
         """Determine whether there is any valid placement."""
-        for key, value in self.items():
-            if 2 <= len(value):
-                return True
-        return False
+        return any(2 <= len(neighborhood) for neighborhood in self.values())
 
     def place(self, placement):
         """Remove all nodes of a given placement."""
