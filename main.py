@@ -96,7 +96,9 @@ class Hexagon(dict):
 
     def hide(self, index):
         """"Hide" a node in the graph. This makes the node and all "references" to it appear to not
-            be in the graph despite still existing in it's underlying data structure."""
+            be in the graph despite still existing in it's underlying data structure. Returns a
+            lambda function which when called will restore the state of the graph as this method is
+            called on it"""
         self.deleted.add(index)
 
         def reveal(index):
@@ -107,36 +109,6 @@ class Hexagon(dict):
         def undo():
             action()
 
-        return undo
-
-    def remove_node(self, index):
-        """Remove node corresponding to given index and all connection to and from it. Returns a
-           lambda function which when called will restore the state of the graph as this method is
-           called on it"""
-
-        def add(index, neighbor_index):
-            self[index].add(neighbor_index)
-
-        def update(index, neighborhood):
-            self.update({index: neighborhood})
-
-        restoration_actions = [] # list of lambda to restore the node being removed
-        for neighbor_index in self[index]:
-            # remove self from neighbor's neighborhood
-            self[neighbor_index].remove(index)
-
-            # add self back to neighbor's neighborhood
-            restoration_actions.append(lambda n=neighbor_index, i=index: add(n, i))
-
-        # remove self from graph, capture neighborhood value for restoration
-        neighborhood = self.pop(index)
-
-        # add index -> neighborhood back to self
-        restoration_actions.append(lambda i=index, h=neighborhood: update(i, h))
-
-        def undo():
-            for f in reversed(restoration_actions):
-                f()
         return undo
 
     def placement_possible(self):
@@ -246,65 +218,65 @@ class Hexagon(dict):
 
 h = Hexagon()#.trim_to_radius_1()
 
-#h.remove_node(0)
-#h.remove_node(1)
-#h.remove_node(2)
-#h.remove_node(3)
-#h.remove_node(4)
-#h.remove_node(5)
-#h.remove_node(6)
-#h.remove_node(7)
-#h.remove_node(8)
-#h.remove_node(9)
+#h.hide(0)
+#h.hide(1)
+#h.hide(2)
+#h.hide(3)
+#h.hide(4)
+#h.hide(5)
+#h.hide(6)
+#h.hide(7)
+#h.hide(8)
+#h.hide(9)
 
-#h.remove_node(10)
-#h.remove_node(11)
-#h.remove_node(12)
-#h.remove_node(13)
-#h.remove_node(14)
-#h.remove_node(15)
-#h.remove_node(16)
-#h.remove_node(17)
-#h.remove_node(18)
-#h.remove_node(19)
+#h.hide(10)
+#h.hide(11)
+#h.hide(12)
+#h.hide(13)
+#h.hide(14)
+#h.hide(15)
+#h.hide(16)
+#h.hide(17)
+#h.hide(18)
+#h.hide(19)
 
-#h.remove_node(20)
-#h.remove_node(21)
-#h.remove_node(22)
-#h.remove_node(23)
-#h.remove_node(24)
-#h.remove_node(25)
-#h.remove_node(26)
-#h.remove_node(27)
-#h.remove_node(28)
-#h.remove_node(29)
+#h.hide(20)
+#h.hide(21)
+#h.hide(22)
+#h.hide(23)
+#h.hide(24)
+#h.hide(25)
+#h.hide(26)
+#h.hide(27)
+#h.hide(28)
+#h.hide(29)
 
-#h.remove_node(30)
-#h.remove_node(31)
-#h.remove_node(32)
-#h.remove_node(33)
-#h.remove_node(34)
-#h.remove_node(35)
-#h.remove_node(36)
-#h.remove_node(37)
-#h.remove_node(38)
-#h.remove_node(39)
+#h.hide(30)
+#h.hide(31)
+#h.hide(32)
+#h.hide(33)
+#h.hide(34)
+#h.hide(35)
+#h.hide(36)
+#h.hide(37)
+#h.hide(38)
+#h.hide(39)
 
-#h.remove_node(40)
-#h.remove_node(41)
-#h.remove_node(42)
-#h.remove_node(43)
-#h.remove_node(44)
-#h.remove_node(45)
-#h.remove_node(46)
-#h.remove_node(47)
-#h.remove_node(48)
-#h.remove_node(49)
-#
-#h.remove_node(50)
-#h.remove_node(51)
-#h.remove_node(52)
-#h.remove_node(53)
+#h.hide(40)
+#h.hide(41)
+#h.hide(42)
+#h.hide(43)
+#h.hide(44)
+#h.hide(45)
+#h.hide(46)
+#h.hide(47)
+#h.hide(48)
+#h.hide(49)
+
+#h.hide(50)
+#h.hide(51)
+#h.hide(52)
+#h.hide(53)
 
 print(h.count_tilings())
 
