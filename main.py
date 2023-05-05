@@ -85,6 +85,10 @@ class Hexagon(dict):
     def keys(self):
         return [key for key in super().keys() if key not in self.deleted]
 
+    def values(self):
+        # note: this depends on `self.keys()`
+        return [self[key] for key in self.keys()]
+
     def items(self):
         return [(key, self[key]) for key in self.keys()]
 
