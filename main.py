@@ -119,7 +119,6 @@ class Hexagon(dict):
         for node in placement:
             restoration = self.remove_node(node)
             restoration_actions.append(restoration)
-        #return lambda: [f() for f in reversed(restoration_actions)]
         def undo():
             for f in reversed(restoration_actions):
                 f()
