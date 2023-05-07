@@ -138,11 +138,7 @@ impl Board {
             return (self.deleted & Board::NODE_MASK == Board::NODE_MASK) as u32;
         }
 
-        // find the first non-deleted node
-        let mut pick = 0;
-        while self.deleted(pick) {
-            pick += 1;
-        }
+        let pick = (!self.deleted).trailing_zeros() as usize;
 
         let mut ct = 0;
         let (tiles, n_tiles) = self.distinct_tiles(pick);
