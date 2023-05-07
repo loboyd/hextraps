@@ -2,7 +2,19 @@ use std::fmt;
 
 const N_NODES: usize = 54;
 
-type Neighborhood = [Option<usize>; 3];
+struct Neighborhood(u64);
+
+impl Neighborhood {
+    fn into_iter(&self) -> impl Iterator<Item=usize> {
+        let mut v = Vec::with_capacity(3);
+        for n in 0..N_NODES {
+            if (self.0 & (1 << n)) != 0 {
+                v.push(n);
+            }
+        }
+        v.into_iter()
+    }
+}
 
 struct Board {
     neighborhoods: [Neighborhood; N_NODES],
@@ -18,60 +30,60 @@ impl Board {
     fn new() -> Self {
         Self {
             neighborhoods: [
-                [Some(1), Some(3), None],       // 0
-                [Some(0), Some(4), None],       // 1
-                [Some(3), Some(7), None],       // 2
-                [Some(0), Some(2), Some(8)],    // 3
-                [Some(1), Some(5), Some(9)],    // 4
-                [Some(4), Some(10), None],      // 5
-                [Some(7), Some(12), None],      // 6
-                [Some(2), Some(6), Some(13)],   // 7
-                [Some(3), Some(9), Some(14)],   // 8
-                [Some(4), Some(8), Some(15)],   // 9
-                [Some(5), Some(11), Some(16)],  // 10
-                [Some(10), Some(17), None],     // 11
-                [Some(6), Some(18), None],      // 12
-                [Some(7), Some(14), Some(19)],  // 13
-                [Some(8), Some(13), Some(20)],  // 14
-                [Some(9), Some(16), Some(21)],  // 15
-                [Some(10), Some(15), Some(22)], // 16
-                [Some(11), Some(23), None],     // 17
-                [Some(12), Some(19), Some(24)], // 18
-                [Some(13), Some(18), Some(25)], // 19
-                [Some(14), Some(21), Some(26)], // 20
-                [Some(15), Some(20), Some(27)], // 21
-                [Some(16), Some(23), Some(28)], // 22
-                [Some(17), Some(22), Some(29)], // 23
-                [Some(18), Some(30), None],     // 24
-                [Some(19), Some(26), Some(31)], // 25
-                [Some(20), Some(25), Some(32)], // 26
-                [Some(21), Some(28), Some(33)], // 27
-                [Some(22), Some(27), Some(34)], // 28
-                [Some(23), Some(35), None],     // 29
-                [Some(24), Some(31), Some(36)], // 30
-                [Some(25), Some(30), Some(37)], // 31
-                [Some(26), Some(33), Some(38)], // 32
-                [Some(27), Some(32), Some(39)], // 33
-                [Some(28), Some(35), Some(40)], // 34
-                [Some(29), Some(34), Some(41)], // 35
-                [Some(30), Some(42), None],     // 36
-                [Some(31), Some(38), Some(43)], // 37
-                [Some(32), Some(37), Some(44)], // 38
-                [Some(33), Some(40), Some(45)], // 39
-                [Some(34), Some(39), Some(46)], // 40
-                [Some(35), Some(47), None],     // 41
-                [Some(36), Some(43), None],     // 42
-                [Some(37), Some(42), Some(48)], // 43
-                [Some(38), Some(45), Some(49)], // 44
-                [Some(39), Some(44), Some(50)], // 45
-                [Some(40), Some(47), Some(51)], // 46
-                [Some(41), Some(46), None],     // 47
-                [Some(43), Some(49), None],     // 48
-                [Some(44), Some(48), Some(52)], // 49
-                [Some(45), Some(51), Some(53)], // 50
-                [Some(46), Some(50), None],     // 51
-                [Some(49), Some(53), None],     // 52
-                [Some(50), Some(52), None],     // 53
+                Neighborhood((1 <<  1) | (1 <<  3)),             // 0
+                Neighborhood((1 <<  0) | (1 <<  4)),             // 1
+                Neighborhood((1 <<  3) | (1 <<  7)),             // 2
+                Neighborhood((1 <<  0) | (1 <<  2) | (1 <<  8)), // 3
+                Neighborhood((1 <<  1) | (1 <<  5) | (1 <<  9)), // 4
+                Neighborhood((1 <<  4) | (1 << 10)),             // 5
+                Neighborhood((1 <<  7) | (1 << 12)),             // 6
+                Neighborhood((1 <<  2) | (1 <<  6) | (1 << 13)), // 7
+                Neighborhood((1 <<  3) | (1 <<  9) | (1 << 14)), // 8
+                Neighborhood((1 <<  4) | (1 <<  8) | (1 << 15)), // 9
+                Neighborhood((1 <<  5) | (1 << 11) | (1 << 16)), // 10
+                Neighborhood((1 << 10) | (1 << 17)),             // 11
+                Neighborhood((1 <<  6) | (1 << 18)),             // 12
+                Neighborhood((1 <<  7) | (1 << 14) | (1 << 19)), // 13
+                Neighborhood((1 <<  8) | (1 << 13) | (1 << 20)), // 14
+                Neighborhood((1 <<  9) | (1 << 16) | (1 << 21)), // 15
+                Neighborhood((1 << 10) | (1 << 15) | (1 << 22)), // 16
+                Neighborhood((1 << 11) | (1 << 23)),             // 17
+                Neighborhood((1 << 12) | (1 << 19) | (1 << 24)), // 18
+                Neighborhood((1 << 13) | (1 << 18) | (1 << 25)), // 19
+                Neighborhood((1 << 14) | (1 << 21) | (1 << 26)), // 20
+                Neighborhood((1 << 15) | (1 << 20) | (1 << 27)), // 21
+                Neighborhood((1 << 16) | (1 << 23) | (1 << 28)), // 22
+                Neighborhood((1 << 17) | (1 << 22) | (1 << 29)), // 23
+                Neighborhood((1 << 18) | (1 << 30)),             // 24
+                Neighborhood((1 << 19) | (1 << 26) | (1 << 31)), // 25
+                Neighborhood((1 << 20) | (1 << 25) | (1 << 32)), // 26
+                Neighborhood((1 << 21) | (1 << 28) | (1 << 33)), // 27
+                Neighborhood((1 << 22) | (1 << 27) | (1 << 34)), // 28
+                Neighborhood((1 << 23) | (1 << 35)),             // 29
+                Neighborhood((1 << 24) | (1 << 31) | (1 << 36)), // 30
+                Neighborhood((1 << 25) | (1 << 30) | (1 << 37)), // 31
+                Neighborhood((1 << 26) | (1 << 33) | (1 << 38)), // 32
+                Neighborhood((1 << 27) | (1 << 32) | (1 << 39)), // 33
+                Neighborhood((1 << 28) | (1 << 35) | (1 << 40)), // 34
+                Neighborhood((1 << 29) | (1 << 34) | (1 << 41)), // 35
+                Neighborhood((1 << 30) | (1 << 42)),             // 36
+                Neighborhood((1 << 31) | (1 << 38) | (1 << 43)), // 37
+                Neighborhood((1 << 32) | (1 << 37) | (1 << 44)), // 38
+                Neighborhood((1 << 33) | (1 << 40) | (1 << 45)), // 39
+                Neighborhood((1 << 34) | (1 << 39) | (1 << 46)), // 40
+                Neighborhood((1 << 35) | (1 << 47)),             // 41
+                Neighborhood((1 << 36) | (1 << 43)),             // 42
+                Neighborhood((1 << 37) | (1 << 42) | (1 << 48)), // 43
+                Neighborhood((1 << 38) | (1 << 45) | (1 << 49)), // 44
+                Neighborhood((1 << 39) | (1 << 44) | (1 << 50)), // 45
+                Neighborhood((1 << 40) | (1 << 47) | (1 << 51)), // 46
+                Neighborhood((1 << 41) | (1 << 46)),             // 47
+                Neighborhood((1 << 43) | (1 << 49)),             // 48
+                Neighborhood((1 << 44) | (1 << 48) | (1 << 52)), // 49
+                Neighborhood((1 << 45) | (1 << 51) | (1 << 53)), // 50
+                Neighborhood((1 << 46) | (1 << 50)),             // 51
+                Neighborhood((1 << 49) | (1 << 53)),             // 52
+                Neighborhood((1 << 50) | (1 << 52)),             // 53
             ],
 
             deleted: 0b0,
@@ -104,27 +116,14 @@ impl Board {
 
     // TODO check that this access pattern isn't slow af
     fn get(&self, index: usize) -> Neighborhood {
-        if self.deleted(index) {
-            return [None; 3];
-        }
-
-        let neighborhood = self.neighborhoods[index];
-        let mut masked_neighborhood = neighborhood.clone();
-        for (idx, maybe_neighbor) in neighborhood.iter().enumerate() {
-            if let Some(neighbor) = maybe_neighbor {
-                if self.deleted(*neighbor) {
-                    masked_neighborhood[idx] = None;
-                }
-            }
-        }
-        masked_neighborhood
+        Neighborhood(self.neighborhoods[index].0 & !self.deleted)
     }
 
     fn placement_possible(&self) -> bool {
         let mut i = N_NODES - 1;
         while i < N_NODES { // `usize` is non-negative and will wrap around to `usize::MAX`
             let neighborhood = self.get(i);
-            if neighborhood.iter().filter(|n| n.is_some()).count() >= 2 {
+            if neighborhood.0.count_ones() >= 2 {
                 return true;
             }
             i -= 1;
@@ -163,27 +162,21 @@ impl Board {
         let mut output = [None; 9];
         let mut n_tiles = 0;
 
-        for &maybe_neighbor in self.get(pick).iter() {
-            if let Some(neighbor) = maybe_neighbor {
-                // inclusion forcing tiles
-                for &maybe_other_neighbor in self.get(pick).iter() {
-                    if let Some(other_neighbor) = maybe_other_neighbor {
-                        if neighbor < other_neighbor {
-                            output[n_tiles] = Some((neighbor, pick, other_neighbor));
-                            n_tiles += 1;
-                        }
-                    }
+        for neighbor in self.get(pick).into_iter() {
+            // inclusion forcing tiles
+            for other_neighbor in self.get(pick).into_iter() {
+                if neighbor < other_neighbor {
+                    output[n_tiles] = Some((neighbor, pick, other_neighbor));
+                    n_tiles += 1;
                 }
+            }
 
-                // exclusion forcing tiles
-                let neighborhood_neighborhood = self.get(neighbor);
-                for &maybe_second_order_neighbor in neighborhood_neighborhood.iter() {
-                    if let Some(second_order_neighbor) = maybe_second_order_neighbor {
-                        if second_order_neighbor != pick {
-                            output[n_tiles] = Some((pick, neighbor, second_order_neighbor));
-                            n_tiles += 1;
-                        }
-                    }
+            // exclusion forcing tiles
+            let neighborhood_neighborhood = self.get(neighbor);
+            for second_order_neighbor in neighborhood_neighborhood.into_iter() {
+                if second_order_neighbor != pick {
+                    output[n_tiles] = Some((pick, neighbor, second_order_neighbor));
+                    n_tiles += 1;
                 }
             }
         }
@@ -197,10 +190,8 @@ impl fmt::Display for Board {
         for i in 0..N_NODES {
             if !self.deleted(i) {
                 write!(f, "{} -> ", i,)?;
-                for maybe_neighbor in self.get(i) {
-                    if let Some(neighbor) = maybe_neighbor {
-                        write!(f, "{} ", neighbor)?;
-                    }
+                for neighbor in self.get(i).into_iter() {
+                    write!(f, "{} ", neighbor)?;
                 }
                 writeln!(f)?;
             }
