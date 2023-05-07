@@ -8,15 +8,12 @@ struct Board {
     neighborhoods: [Neighborhood; N_NODES],
 
     /// bitmask for tracking the `deleted` status of nodes in the board
-    deleted: u64,
+    deleted: u128,
 }
 
 impl Board {
-    /// all the bits of `self.deleted` that we actually care about
-    const NODE_MASK: u64 = (1 << 54) - 1;
-
     fn new() -> Self {
-        Self {
+        let mut board = Self {
             neighborhoods: [
                 [Some(1), Some(3), None],       // 0
                 [Some(0), Some(4), None],       // 1
@@ -75,7 +72,13 @@ impl Board {
             ],
 
             deleted: 0b0,
+        };
+
+        for i in 54..64 {
+            board.delete(i);
         }
+
+        board
     }
 
     fn _small() -> Self {
@@ -96,10 +99,47 @@ impl Board {
 
     fn delete(&mut self, index: usize) {
         self.deleted |= 1 << index;
+        self.maintain_total_pop_tree(index);
     }
 
     fn undelete(&mut self, index: usize) {
         self.deleted &= !(1 << index);
+        self.maintain_total_pop_tree(index);
+    }
+
+    fn maintain_total_pop_tree(&mut self, mut index: usize) {
+        // most significant bit is never used
+        while index < 127 {
+            let other = index ^ 1; // if even, get odd. if odd, get even
+            let total_pop = self.deleted(index) && self.deleted(other);
+            index = index / 2 + 64;
+            if total_pop {
+                self.deleted |= 1 << index;
+            } else {
+                self.deleted &= !(1 << index);
+            }
+        }
+    }
+
+    /// Efficiently find an arbitrary non-deleted node if there is one
+    fn find_nondeleted_node(&self) -> Option<usize> {
+        // bit 126 "covers" all actualy nodes, so if it is "deleted", all actual nodes are deleted
+        if self.deleted(126) {
+            return None;
+        }
+
+        let mut find = 126;
+        while 64 <= find { // once we're under 64, we have an actual node, so just return it
+            let even = 2 * (find - 64);
+            let odd = 2 * (find - 64) + 1;
+            if self.deleted(even) {
+                find = odd;
+            } else {
+                find = even;
+            }
+        }
+
+        Some(find)
     }
 
     // TODO check that this access pattern isn't slow af
@@ -135,14 +175,11 @@ impl Board {
     fn count_tilings(&mut self) -> u32 {
         if !self.placement_possible() {
             // 1 if board is filled, 0 otherwise (invalid tiling)
-            return (self.deleted & Board::NODE_MASK == Board::NODE_MASK) as u32;
+            return self.deleted(126) as u32;
         }
 
-        // find the first non-deleted node
-        let mut pick = 0;
-        while self.deleted(pick) {
-            pick += 1;
-        }
+        // we know this will return `Some(_)` because of `placement_possible()` call above
+        let pick = self.find_nondeleted_node().unwrap();
 
         let mut ct = 0;
         let (tiles, n_tiles) = self.distinct_tiles(pick);
