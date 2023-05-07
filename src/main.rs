@@ -4,15 +4,33 @@ const N_NODES: usize = 54;
 
 struct Neighborhood(u64);
 
+struct NeighborIterator {
+    remaining_bits: u64,
+    bit_index: usize,
+}
+
+impl Iterator for NeighborIterator {
+    type Item = usize;
+
+    fn next(&mut self) -> Option<Self::Item> {
+        if self.remaining_bits == 0 {
+            return None;
+        }
+
+        let trailing_zeros = self.remaining_bits.trailing_zeros(); // as usize;
+        self.bit_index += trailing_zeros as usize + 1;
+        self.remaining_bits >>= trailing_zeros + 1;
+
+        Some(self.bit_index - 1)
+    }
+}
+
 impl Neighborhood {
     fn into_iter(&self) -> impl Iterator<Item=usize> {
-        let mut v = Vec::with_capacity(3);
-        for n in 0..N_NODES {
-            if (self.0 & (1 << n)) != 0 {
-                v.push(n);
-            }
+        NeighborIterator {
+            remaining_bits: self.0,
+            bit_index: 0,
         }
-        v.into_iter()
     }
 }
 
@@ -126,7 +144,12 @@ impl Board {
             if neighborhood.0.count_ones() >= 2 {
                 return true;
             }
-            i -= 1;
+            // TODO figure out what this is all about
+            if i == 0 {
+                break;
+            } else {
+                i -= 1;
+            }
         }
         return false;
     }
