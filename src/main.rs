@@ -132,6 +132,73 @@ impl Board {
         return false;
     }
 
+    fn count_tilings_with_stack(&mut self) -> u32 {
+        let mut ct = 0;
+        let mut stack = Vec::<Frame>::new();
+        let mut start = true;
+        loop {
+            if start {
+                let (tiles, n_tiles) = self.distinct_tiles(0);
+                for t in 0..n_tiles {
+                    let tile = tiles[t].unwrap();
+                    stack.push(Frame {
+                        action: Action::Remove,
+                        tile,
+                    });
+                }
+
+                start = false;
+            } else {
+                let Frame { tile, action } = stack.pop().unwrap();
+                match action {
+                    Action::Remove => {
+                        // remove the tile
+                        self.delete(tile.0);
+                        self.delete(tile.1);
+                        self.delete(tile.2);
+
+                        // push the restore action to the stack
+                        stack.push(Frame {
+                            action: Action::Restore,
+                            tile,
+                        });
+
+                        // see if more placements are possible
+                        if !self.placement_possible() {
+                            // 1 if board is filled, 0 otherwise (invalid tiling)
+                            ct += (self.deleted & Board::NODE_MASK == Board::NODE_MASK) as u32;
+                            continue;
+                        }
+
+                        // if so, select a pick
+                        let pick = (!self.deleted).trailing_zeros() as usize;
+
+                        // get distinct tiles and push them to the stack
+                        let (tiles, n_tiles) = self.distinct_tiles(pick);
+                        for t in 0..n_tiles {
+                            let tile = tiles[t].unwrap();
+                            stack.push(Frame {
+                                action: Action::Remove,
+                                tile,
+                            });
+                        }
+
+                    },
+                    Action::Restore => {
+                        // restore the tile
+                        self.undelete(tile.0);
+                        self.undelete(tile.1);
+                        self.undelete(tile.2);
+                    },
+                }
+            }
+
+            if stack.is_empty() { break; }
+        }
+
+        ct
+    }
+
     fn count_tilings(&mut self) -> u32 {
         if !self.placement_possible() {
             // 1 if board is filled, 0 otherwise (invalid tiling)
@@ -210,10 +277,20 @@ impl fmt::Display for Board {
     }
 }
 
+enum Action {
+    Remove,
+    Restore,
+}
+
+struct Frame {
+    action: Action,
+    tile: (usize, usize, usize),
+}
+
 fn main() {
     let start = std::time::Instant::now();
     let mut board = Board::new();
-    let num_tilings = board.count_tilings();
+    let num_tilings = board.count_tilings_with_stack();
     let elapsed = start.elapsed();
     println!("Found {} tilings in {:?}", num_tilings, elapsed);
 }
