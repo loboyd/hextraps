@@ -134,7 +134,7 @@ impl Board {
 
     fn count_tilings_with_stack(&mut self) -> u32 {
         let mut ct = 0;
-        let mut stack = Vec::<Frame>::new();
+        let mut stack = Stack::new();
         let mut start = true;
         loop {
             if start {
@@ -277,14 +277,52 @@ impl fmt::Display for Board {
     }
 }
 
+#[derive(Copy, Clone)]
 enum Action {
     Remove,
     Restore,
 }
 
+#[derive(Copy, Clone)]
 struct Frame {
     action: Action,
     tile: (usize, usize, usize),
+}
+
+const N_FRAMES: usize = 128;
+
+struct Stack {
+    data: [Option<Frame>; N_FRAMES],
+    length: usize,
+}
+
+impl Stack {
+    fn new() -> Self {
+        Self {
+            data: [None; N_FRAMES],
+            length: 0,
+        }
+    }
+
+    fn pop(&mut self) -> Option<Frame> {
+        if 0 <= self.length {
+            self.length -= 1;
+            return self.data[self.length + 1];
+        }
+
+        None
+    }
+
+    fn push(&mut self, frame: Frame) {
+        self.length += 1;
+        if N_FRAMES <= self.length { panic!(); }
+
+        self.data[self.length] = Some(frame);
+    }
+
+    fn is_empty(&self) -> bool {
+        self.length <= 0
+    }
 }
 
 fn main() {
