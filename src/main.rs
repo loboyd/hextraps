@@ -104,11 +104,13 @@ impl Board {
     }
 
     fn placement_possible(&self) -> bool {
-        for i in 0..N_NODES {
+        let mut i = N_NODES - 1;
+        while i < N_NODES { // `usize` is non-negative and will wrap around to `usize::MAX`
             let neighborhood = self.get(i);
             if neighborhood.iter().filter(|n| n.is_some()).count() >= 2 {
                 return true;
             }
+            i -= 1;
         }
         return false;
     }
