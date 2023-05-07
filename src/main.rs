@@ -2,6 +2,8 @@ use std::fmt;
 
 const N_NODES: usize = 54;
 
+static mut PICK_SEARCH_TIME: u128 = 0; // nano-seconds
+
 type Neighborhood = [Option<usize>; 3];
 
 struct Board {
@@ -122,10 +124,12 @@ impl Board {
         }
 
         // find the first non-deleted node
+        let start = std::time::Instant::now();
         let mut pick = 0;
         while self.deleted[pick] {
             pick += 1;
         }
+        unsafe { PICK_SEARCH_TIME += start.elapsed().as_nanos(); }
 
         let mut ct = 0;
         let (tiles, n_tiles) = self.distinct_tiles(pick);
@@ -202,5 +206,6 @@ fn main() {
     let mut board = Board::new();
     let num_tilings = board.count_tilings();
     let elapsed = start.elapsed();
-    println!("Found {} tilings in {:?}", num_tilings, elapsed);
+    //println!("Found {} tilings in {:?}", num_tilings, elapsed);
+    unsafe { println!("Spent {} looking for `pick`", PICK_SEARCH_TIME); }
 }
