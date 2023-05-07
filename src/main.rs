@@ -8,10 +8,15 @@ type Neighborhood = [Option<usize>; 3];
 
 struct Board {
     neighborhoods: [Neighborhood; N_NODES],
-    deleted: [bool; N_NODES],
+
+    /// bitmask for tracking the `deleted` status of nodes in the board
+    deleted: u64,
 }
 
 impl Board {
+    /// all the bits of `self.deleted` that we actually care about
+    const NODE_MASK: u64 = (1 << 54) - 1;
+
     fn new() -> Self {
         Self {
             neighborhoods: [
@@ -71,25 +76,37 @@ impl Board {
                 [Some(50), Some(52), None],     // 53
             ],
 
-            deleted: [false; N_NODES],
+            deleted: 0b0,
         }
     }
 
     fn _small() -> Self {
         let mut board = Self::new();
-        board.deleted = [true; 54];
-        board.deleted[0] = false;
-        board.deleted[1] = false;
-        board.deleted[3] = false;
-        board.deleted[4] = false;
-        board.deleted[8] = false;
-        board.deleted[9] = false;
+        board.deleted = !0b0;
+        board.undelete(0);
+        board.undelete(1);
+        board.undelete(3);
+        board.undelete(4);
+        board.undelete(8);
+        board.undelete(9);
         board
+    }
+
+    fn deleted(&self, index: usize) -> bool {
+        self.deleted & (1 << index) != 0
+    }
+
+    fn delete(&mut self, index: usize) {
+        self.deleted |= 1 << index;
+    }
+
+    fn undelete(&mut self, index: usize) {
+        self.deleted &= !(1 << index);
     }
 
     // TODO check that this access pattern isn't slow af
     fn get(&self, index: usize) -> Neighborhood {
-        if self.deleted[index] {
+        if self.deleted(index) {
             return [None; 3];
         }
 
@@ -97,7 +114,7 @@ impl Board {
         let mut masked_neighborhood = neighborhood.clone();
         for (idx, maybe_neighbor) in neighborhood.iter().enumerate() {
             if let Some(neighbor) = maybe_neighbor {
-                if self.deleted[*neighbor] {
+                if self.deleted(*neighbor) {
                     masked_neighborhood[idx] = None;
                 }
             }
@@ -120,13 +137,13 @@ impl Board {
     fn count_tilings(&mut self) -> u32 {
         if !self.placement_possible() {
             // 1 if board is filled, 0 otherwise (invalid tiling)
-            return (self.deleted == [true; N_NODES]) as u32;
+            return (self.deleted & Board::NODE_MASK == Board::NODE_MASK) as u32;
         }
 
         // find the first non-deleted node
         let start = std::time::Instant::now();
         let mut pick = 0;
-        while self.deleted[pick] {
+        while self.deleted(pick) {
             pick += 1;
         }
         unsafe { PICK_SEARCH_TIME += start.elapsed().as_nanos(); }
@@ -135,15 +152,15 @@ impl Board {
         let (tiles, n_tiles) = self.distinct_tiles(pick);
         for t in 0..n_tiles {
             let tile = tiles[t].unwrap();
-            self.deleted[tile.0] = true;
-            self.deleted[tile.1] = true;
-            self.deleted[tile.2] = true;
+            self.delete(tile.0);
+            self.delete(tile.1);
+            self.delete(tile.2);
 
             ct += self.count_tilings();
 
-            self.deleted[tile.0] = false;
-            self.deleted[tile.1] = false;
-            self.deleted[tile.2] = false;
+            self.undelete(tile.0);
+            self.undelete(tile.1);
+            self.undelete(tile.2);
         }
 
         ct
@@ -186,7 +203,7 @@ impl Board {
 impl fmt::Display for Board {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         for i in 0..N_NODES {
-            if !self.deleted[i] {
+            if !self.deleted(i) {
                 write!(f, "{} -> ", i,)?;
                 for maybe_neighbor in self.get(i) {
                     if let Some(neighbor) = maybe_neighbor {
